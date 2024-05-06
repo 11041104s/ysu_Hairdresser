@@ -21,7 +21,7 @@ public:
     Mainwindow(QWidget *parent = nullptr);
     ~Mainwindow();
 
-private slots:
+public slots:
     void openDrawer_od();
 
 private:
@@ -29,6 +29,16 @@ private:
     QtMaterialDrawer *drawer;
     QtMaterialAppBar *bar;
     QtMaterialFlatButton *bar_btn;
+
+    QtMaterialFlatButton *customerInfobtn;
+    QtMaterialFlatButton *employeeInfobtn;
+    QtMaterialFlatButton *historyInfobtn;
+    QtMaterialFlatButton *globalInfobtn;
+    QtMaterialFlatButton *addBtn;
+    QtMaterialFlatButton *deleteBtn;
+    QtMaterialFlatButton *editBtn;
+    QtMaterialFlatButton *exitBtn;
+
     bool drawerOpen; // 添加 drawer 的状态变量
     Ui::Widget *ui;
 };

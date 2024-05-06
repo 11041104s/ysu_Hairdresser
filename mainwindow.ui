@@ -13,16 +13,9 @@
   <property name="windowTitle">
    <string>Widget</string>
   </property>
-  <widget class="QTableWidget" name="tableWidget">
-   <property name="geometry">
-    <rect>
-     <x>170</x>
-     <y>55</y>
-     <width>834</width>
-     <height>565</height>
-    </rect>
-   </property>
-  </widget>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
  </widget>
  <resources/>
  <connections/>

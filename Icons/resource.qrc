@@ -1,5 +1,14 @@
 <RCC>
     <qresource prefix="/image">
         <file>list.png</file>
+        <file>data.png</file>
+        <file>chart.png</file>
+        <file>delete.png</file>
+        <file>info.png</file>
+        <file>new.png</file>
+        <file>search.png</file>
+        <file>close.png</file>
+        <file>edit.png</file>
+        <file>refresh.png</file>
     </qresource>
 </RCC>
