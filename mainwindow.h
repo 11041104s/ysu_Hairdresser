@@ -8,6 +8,7 @@
 #include <qtmaterialdrawer.h>
 #include <QtMaterialAppBar.h>
 #include <QTableWidget>
+#include "tablelist.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
@@ -20,14 +21,22 @@ class Mainwindow : public QWidget
 public:
     Mainwindow(QWidget *parent = nullptr);
     ~Mainwindow();
-    void load_customer_info(QTableWidget *tablewidget,QJsonDocument root_doc);
+    //void load_customer_info(QTableWidget *tablewidget,QJsonDocument root_doc);
     QJsonDocument load_json(QString JsonPathFn);
+    void saveDataToJsonFile(const QJsonArray& jsonArray, const QString& filePath);
+    QJsonArray tran_doc_array(QJsonDocument doc);
 
 public slots:
     void openDrawer_od();
 
 private:
-    QTableWidget *table;
+    enum TableType {
+        CustomerTable,
+        ConsumeTable,
+        EmployeeTable
+    };
+    TableType tabletype;
+    tableList AllTables;
     QtMaterialDrawer *drawer;
     QtMaterialAppBar *bar;
     QtMaterialFlatButton *bar_btn;

@@ -2,6 +2,8 @@
 #define EMPLOYEE_H
 #include <QJsonArray>
 
+//雇员基本信息，包括id，名字，性别，电话号，负责项目和价格
+
 class Employee
 {
 public:

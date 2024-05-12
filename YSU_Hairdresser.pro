@@ -55,7 +55,8 @@ FORMS += \
     employee.cpp \
     hairdressing.cpp \
         main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    tablelist.cpp
 
     //导入组件库的头文件
     HEADERS += \
@@ -126,7 +127,8 @@ FORMS += \
     customer.h \
     employee.h \
     hairdressing.h \
-    mainwindow.h
+    mainwindow.h \
+    tablelist.h
 
     #import Material SDK(导入Material组件库的SDK)
     LIBS += F:/QtProject/YSU_Hairdresser/SDK/MaterialSDK/staticlib/libcomponents.a

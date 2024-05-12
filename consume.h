@@ -4,6 +4,7 @@
 #include "customer.h"
 #include <QJsonArray>
 
+//消费的基本信息，如卡号、姓名、性别、电话号码，消费项目及其金额
 class Consume : public Customer
 {
 public:
@@ -14,4 +15,4 @@ private:
     QPair<QString, double> project;
 };
 
-#endif // CONSUME_H
+#endif

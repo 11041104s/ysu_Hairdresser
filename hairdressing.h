@@ -4,6 +4,8 @@
 #include <QMap>
 #include <QPair>
 
+//理发项目
+
 class Hairdressing {
 public:
     Hairdressing() {

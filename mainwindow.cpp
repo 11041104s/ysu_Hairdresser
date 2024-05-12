@@ -24,7 +24,6 @@ Mainwindow::Mainwindow(QWidget *parent)
     : QWidget(parent)
     , drawerOpen(false)
     , ui(new Ui::Widget)
-    , table(new QTableWidget(this))
     , drawer(new QtMaterialDrawer(this))
     , bar(new QtMaterialAppBar(this))
     , bar_btn(new QtMaterialFlatButton(bar))
@@ -33,7 +32,6 @@ Mainwindow::Mainwindow(QWidget *parent)
     , employeeInfobtn(new QtMaterialFlatButton("员工信息", drawer))
     , historyInfobtn(new QtMaterialFlatButton("历史", drawer))
     , globalInfobtn(new QtMaterialFlatButton("统计", drawer))
-
     , addBtn(new QtMaterialFlatButton("添加", drawer))
     , deleteBtn(new QtMaterialFlatButton("删除", drawer))
     , editBtn(new QtMaterialFlatButton("编辑", drawer))
@@ -41,7 +39,7 @@ Mainwindow::Mainwindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setStyleSheet("background-color:#D2D2D2;");
-
+    tableList *AllTables = new tableList(this,drawerOpen);
     QIcon listIcon;
     listIcon.addFile(tr(":/image/list.png"));
     QIcon chartIcon(":/image/chart.png");
@@ -60,9 +58,9 @@ Mainwindow::Mainwindow(QWidget *parent)
     btn_font.setFamily("微软雅黑");
     btn_font.setPixelSize(20);
 
-    table->setGeometry(20, 55, 984, 565);
-    table->setStyleSheet("background-color:#ffffff;");
-    table->stackUnder(drawer);
+    // table->setGeometry(20, 55, 984, 565);
+    // table->setStyleSheet("background-color:#ffffff;");
+    // table->stackUnder(drawer);
 
     drawer->setDrawerWidth(150);
     drawer->setClickOutsideToClose(0);
@@ -142,6 +140,8 @@ Mainwindow::Mainwindow(QWidget *parent)
     exitBtn->setCheckable(0);
     exitBtn->setForegroundColor(QColor(211,211,211));
 
+
+
     //设置按钮互斥
     // 连接按钮的点击信号到槽函数
     connect(customerInfobtn, &QtMaterialFlatButton::clicked, [=]() {
@@ -169,8 +169,11 @@ Mainwindow::Mainwindow(QWidget *parent)
         addBtn->setForegroundColor(black_def);
         exitBtn->setCheckable(1);
         exitBtn->setForegroundColor(black_def);
+        //按钮的ui改变↑
         //load_customer_info(table,load_json(":/Data/customer.json"));
-        // 在这里执行其他逻辑
+        // 其他逻辑
+        AllTables->customerShow(tran_doc_array(load_json(":/Data/customer.json")));
+
     });
     connect(employeeInfobtn, &QtMaterialFlatButton::clicked, [=]() {
         // 设置按钮状态
@@ -345,7 +348,23 @@ void Mainwindow::openDrawer_od()
         editBtn->show();
         exitBtn->show();
         // 调整表格的位置和大小
-        table->setGeometry(170, 55, 834, 565);
+        switch (tabletype) {
+        case CustomerTable:
+            // 处理顾客表
+            AllTables.customerShow(); // 先显示表格
+            AllTables.customerChange_open(); // 更改表格大小
+            break;
+        case ConsumeTable:
+            // 处理消费表
+            AllTables.consumeShow(); // 先显示表格
+            AllTables.consumeChange_open(); // 更改表格大小
+            break;
+        case EmployeeTable:
+            // 处理雇员表
+            AllTables.employeeShow(); // 先显示表格
+            AllTables.employeeChange_open(); // 更改表格大小
+            break;
+        }
     } else { // 如果 drawer 是打开的，则关闭它
         drawer->closeDrawer();
         // 将 bar 放置在顶层
@@ -360,20 +379,36 @@ void Mainwindow::openDrawer_od()
         deleteBtn->hide();
         editBtn->hide();
         exitBtn->hide();
+        switch (tabletype) {
+        case CustomerTable:
+            // 处理顾客表
+            AllTables.customerChange_close(); // 更改表格大小
+            AllTables.customerHide(); // 隐藏表格
+            break;
+        case ConsumeTable:
+            // 处理消费表
+            AllTables.consumeChange_close(); // 更改表格大小
+            AllTables.consumeHide(); // 隐藏表格
+            break;
+        case EmployeeTable:
+            // 处理雇员表
+            AllTables.employeeChange_close(); // 更改表格大小
+            AllTables.employeeHide(); // 隐藏表格
+            break;
+        }
         // 恢复表格的原始位置和大小
-        table->setGeometry(20, 55, 984, 565);
+        //
+        //table->setGeometry(20, 55, 984, 565);
     }
 }
 
 
 
-void Mainwindow::load_customer_info(QTableWidget *tablewidget,QJsonDocument root_doc){
-    QJsonArray jsonArray = root_doc.array();
 
+
+QJsonArray tran_doc_array(QJsonDocument doc){
+    return doc.array();
 }
-
-
-
 
 QJsonArray addinto_json(QJsonArray jsonarray, const Customer& customer) {
     jsonarray.append(customer.toJson());
@@ -420,6 +455,24 @@ QJsonDocument readJsonFile(const QString& filePath) {
         return QJsonDocument();
     }
 }
+
+void saveJsonArrayToFile(const QJsonArray& jsonArray, const QString& filePath) {
+    // 创建一个 JSON 文档并将 JSON 数组添加到其中
+    QJsonDocument doc(jsonArray);
+
+    // 打开文件进行写入
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly)) {
+        // 文件打开失败，处理错误情况
+        return;
+    }
+
+    // 将 JSON 文档转换为二进制数据并写入文件
+    file.write(doc.toJson());
+    // 关闭文件
+    file.close();
+}
+
 
 Mainwindow::~Mainwindow()
 {

@@ -3,6 +3,7 @@
 #include <QString>
 #include <QJsonObject>
 
+//顾客的基本信息，如卡号、姓名、性别、电话号码
 class Customer
 {
 public:
