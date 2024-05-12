@@ -50,6 +50,10 @@ FORMS += \
         SDK/MaterialSDK/components/qtmaterialtextfield_internal.cpp \
         SDK/MaterialSDK/components/qtmaterialtoggle.cpp \
         SDK/MaterialSDK/components/qtmaterialtoggle_internal.cpp \
+    consume.cpp \
+    customer.cpp \
+    employee.cpp \
+    hairdressing.cpp \
         main.cpp \
     mainwindow.cpp
 
@@ -118,6 +122,10 @@ FORMS += \
         SDK/MaterialSDK/components/qtmaterialtoggle.h \
         SDK/MaterialSDK/components/qtmaterialtoggle_internal.h \
         SDK/MaterialSDK/components/qtmaterialtoggle_p.h \
+    consume.h \
+    customer.h \
+    employee.h \
+    hairdressing.h \
     mainwindow.h
 
     #import Material SDK(导入Material组件库的SDK)

@@ -20,6 +20,8 @@ class Mainwindow : public QWidget
 public:
     Mainwindow(QWidget *parent = nullptr);
     ~Mainwindow();
+    void load_customer_info(QTableWidget *tablewidget,QJsonDocument root_doc);
+    QJsonDocument load_json(QString JsonPathFn);
 
 public slots:
     void openDrawer_od();
@@ -29,6 +31,7 @@ private:
     QtMaterialDrawer *drawer;
     QtMaterialAppBar *bar;
     QtMaterialFlatButton *bar_btn;
+    QtMaterialFlatButton *bar_btn2;
 
     QtMaterialFlatButton *customerInfobtn;
     QtMaterialFlatButton *employeeInfobtn;

@@ -10,5 +10,7 @@
         <file>close.png</file>
         <file>edit.png</file>
         <file>refresh.png</file>
+        <file>about.png</file>
+        <file>history.png</file>
     </qresource>
 </RCC>
