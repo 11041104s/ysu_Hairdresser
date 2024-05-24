@@ -7,20 +7,29 @@
 #include <qtmaterialdrawer.h>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonDocument>
+#include <QFile>
 
 
 class tableList : public QWidget
 {
 public:
-    explicit tableList(QWidget *parent = nullptr,bool drawerOpen=true);
+    explicit tableList(QWidget *parent,bool drawerOpen);
     ~tableList(){};
+    QJsonDocument readJsonFile(const QString& JsonPathFn);
+    void saveJsonArrayToFile(const QJsonArray& jsonArray, const QString& filePath);
+    QJsonArray tran_doc_array(QJsonDocument doc);
+    QJsonArray customer_info;
+    QJsonArray consume_info;
+    QJsonArray employee_info;
+
     void customerShow(QJsonArray jsonarray);
     void customerChange_open();
     void customerChange_close();
-    void consumeShow(QJsonArray jsonarray);
+    void consumeShow();
     void consumeChange_open();
     void consumeChange_close();
-    void employeeShow(QJsonArray jsonarray);
+    void employeeShow();
     void employeeChange_open();
     void employeeChange_close();
     void customerHide();
@@ -30,8 +39,11 @@ public:
 
 private:
     QTableWidget customerTable;
+
     QTableWidget consumeTable;
+
     QTableWidget employeeTable;
+
     bool isDrawerOpen;
     QWidget* parentWidget;
 };

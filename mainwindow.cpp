@@ -3,6 +3,7 @@
 #include "customer.h"
 #include "consume.h"
 #include "employee.h"
+#include "hairdressing.h"
 #include <qtmaterialtoggle.h>
 #include <qtmaterialflatbutton.h>
 #include <qtmaterialflatbutton_internal.h>
@@ -19,18 +20,25 @@
 #include <QJsonArray>			// Json数据对象
 #include <QJsonDocument>		// Json文档对象
 #include <QJsonObject>			// 普通Json对象
+#include <qtmaterialdialog.h>
+#include <qtmaterialtextfield.h>
+#include <QDialog>
+#include <QCheckBox>
+#include <QMessageBox>
+#include <QRadioButton>
 
 Mainwindow::Mainwindow(QWidget *parent)
     : QWidget(parent)
     , drawerOpen(false)
     , ui(new Ui::Widget)
+    , AllTables (new tableList(this,true))
     , drawer(new QtMaterialDrawer(this))
     , bar(new QtMaterialAppBar(this))
     , bar_btn(new QtMaterialFlatButton(bar))
     , bar_btn2(new QtMaterialFlatButton(bar))
     , customerInfobtn(new QtMaterialFlatButton("顾客信息", drawer))
     , employeeInfobtn(new QtMaterialFlatButton("员工信息", drawer))
-    , historyInfobtn(new QtMaterialFlatButton("历史", drawer))
+    , historyInfobtn(new QtMaterialFlatButton("消费历史", drawer))
     , globalInfobtn(new QtMaterialFlatButton("统计", drawer))
     , addBtn(new QtMaterialFlatButton("添加", drawer))
     , deleteBtn(new QtMaterialFlatButton("删除", drawer))
@@ -39,7 +47,14 @@ Mainwindow::Mainwindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setStyleSheet("background-color:#D2D2D2;");
-    tableList *AllTables = new tableList(this,drawerOpen);
+
+    AllTables->customer_info = (AllTables->tran_doc_array(AllTables->readJsonFile("F:/QtProject/YSU_Hairdresser/Data/customer.json")));
+    QJsonDocument doc(AllTables->customer_info);
+    QString jsonString = doc.toJson(QJsonDocument::Compact);
+    QMessageBox::warning(this, "选择错误", QString("Customer Info: %1").arg(jsonString));
+
+    AllTables->consume_info = (AllTables->tran_doc_array(AllTables->readJsonFile("F:/QtProject/YSU_Hairdresser/Data/consume.json")));
+    AllTables->employee_info = (AllTables->tran_doc_array(AllTables->readJsonFile("F:/QtProject/YSU_Hairdresser/Data/employee.json")));
     QIcon listIcon;
     listIcon.addFile(tr(":/image/list.png"));
     QIcon chartIcon(":/image/chart.png");
@@ -172,7 +187,8 @@ Mainwindow::Mainwindow(QWidget *parent)
         //按钮的ui改变↑
         //load_customer_info(table,load_json(":/Data/customer.json"));
         // 其他逻辑
-        AllTables->customerShow(tran_doc_array(load_json(":/Data/customer.json")));
+        AllTables->customerShow(AllTables->customer_info);
+        tabletype = CustomerTable;
 
     });
     connect(employeeInfobtn, &QtMaterialFlatButton::clicked, [=]() {
@@ -200,6 +216,7 @@ Mainwindow::Mainwindow(QWidget *parent)
         addBtn->setForegroundColor(black_def);
         exitBtn->setCheckable(1);
         exitBtn->setForegroundColor(black_def);
+        tabletype = EmployeeTable;
         // 在这里执行其他逻辑
     });
     connect(historyInfobtn, &QtMaterialFlatButton::clicked, [=]() {
@@ -227,6 +244,7 @@ Mainwindow::Mainwindow(QWidget *parent)
         addBtn->setForegroundColor(black_def);
         exitBtn->setCheckable(1);
         exitBtn->setForegroundColor(black_def);
+        tabletype = ConsumeTable;
         // 在这里执行其他逻辑
     });
     connect(globalInfobtn, &QtMaterialFlatButton::clicked, [=]() {
@@ -276,13 +294,259 @@ Mainwindow::Mainwindow(QWidget *parent)
         editBtn->setChecked(false);
         deleteBtn->setChecked(false);
         exitBtn->setChecked(false);
-    });
+        QtMaterialDialog *addDialog = new QtMaterialDialog(this); // 将主窗口设置为对话框的父窗口
+        addDialog->resize(QSize(1024,640));
 
-    connect(exitBtn, &QtMaterialFlatButton::clicked, [=]() {
-        // 取消其他按钮的选中状态
-        editBtn->setChecked(false);
-        deleteBtn->setChecked(false);
-        addBtn->setChecked(false);
+
+        QVBoxLayout *layout = new QVBoxLayout(addDialog);
+        layout->setAlignment(Qt::AlignCenter);
+
+        // 创建并添加第一个输入框及其标签
+        QWidget *widget1 = new QWidget(addDialog);
+        QHBoxLayout *inputLayout1 = new QHBoxLayout(widget1);
+        inputLayout1->setAlignment(Qt::AlignCenter);
+        QLabel *label1 = new QLabel("卡号:", widget1);
+        inputLayout1->addWidget(label1);
+        QtMaterialTextField *textField1 = new QtMaterialTextField(widget1);
+        textField1->setLabelColor(Qt::white);
+        textField1->setPlaceholderText("请输入卡号");
+        inputLayout1->addWidget(textField1);
+        layout->addWidget(widget1);
+
+        QWidget *widget2 = new QWidget(addDialog);
+        QHBoxLayout *inputLayout2 = new QHBoxLayout(widget2);
+        inputLayout2->setAlignment(Qt::AlignCenter);
+        QLabel *label2 = new QLabel("姓名:", widget2);
+        inputLayout2->addWidget(label2);
+        QtMaterialTextField *textField2 = new QtMaterialTextField(widget2);
+        textField2->setPlaceholderText("请输入姓名");
+        inputLayout2->addWidget(textField2);
+        layout->addWidget(widget2);
+
+        QWidget *radioWidget = new QWidget(addDialog);
+        QHBoxLayout *radioLayout = new QHBoxLayout(radioWidget);
+        radioLayout->setAlignment(Qt::AlignCenter);
+
+        QRadioButton *maleRadio = new QRadioButton("男", radioWidget);
+        QRadioButton *femaleRadio = new QRadioButton("女", radioWidget);
+
+        QButtonGroup *genderGroup = new QButtonGroup(radioWidget);
+        genderGroup->addButton(maleRadio);
+        genderGroup->addButton(femaleRadio);
+
+        radioLayout->addWidget(maleRadio);
+        radioLayout->addWidget(femaleRadio);
+        layout->addWidget(radioWidget);
+
+        QWidget *widget4 = new QWidget(addDialog);
+        QHBoxLayout *inputLayout4 = new QHBoxLayout(widget4);
+        inputLayout4->setAlignment(Qt::AlignCenter);
+        QLabel *label4 = new QLabel("手机号:", widget4);
+        inputLayout4->addWidget(label4);
+        QtMaterialTextField *textField4 = new QtMaterialTextField(widget4);
+        textField4->setPlaceholderText("请输入手机号");
+        inputLayout4->addWidget(textField4);
+        layout->addWidget(widget4);
+
+        QWidget *checkboxWidget = nullptr;
+        QHBoxLayout *checkboxLayout = nullptr;
+        QCheckBox *checkbox1 = nullptr, *checkbox2 = nullptr, *checkbox3 = nullptr, *checkbox4 = nullptr, *checkbox5 = nullptr;
+
+        switch (tabletype) {
+        case CustomerTable:
+
+            break;
+        case ConsumeTable:
+            // 处理 ConsumeTable 情况
+            checkboxWidget = new QWidget(addDialog);
+            checkboxLayout = new QHBoxLayout(checkboxWidget);
+            checkboxLayout->setAlignment(Qt::AlignCenter);
+
+            checkbox1 = new QCheckBox("洗剪吹", checkboxWidget);
+            checkbox2 = new QCheckBox("染发", checkboxWidget);
+            checkbox3 = new QCheckBox("剪发", checkboxWidget);
+            checkbox4 = new QCheckBox("烫发", checkboxWidget);
+            checkbox5 = new QCheckBox("护发", checkboxWidget);
+
+            checkboxLayout->addWidget(checkbox1);
+            checkboxLayout->addWidget(checkbox2);
+            checkboxLayout->addWidget(checkbox3);
+            checkboxLayout->addWidget(checkbox4);
+            checkboxLayout->addWidget(checkbox5);
+            layout->addWidget(checkboxWidget);
+            break;
+        case EmployeeTable:
+            // 处理 EmployeeTable 情况
+            checkboxWidget = new QWidget(addDialog);
+            checkboxLayout = new QHBoxLayout(checkboxWidget);
+            checkboxLayout->setAlignment(Qt::AlignCenter);
+
+            checkbox1 = new QCheckBox("洗剪吹", checkboxWidget);
+            checkbox2 = new QCheckBox("染发", checkboxWidget);
+            checkbox3 = new QCheckBox("剪发", checkboxWidget);
+            checkbox4 = new QCheckBox("烫发", checkboxWidget);
+            checkbox5 = new QCheckBox("护发", checkboxWidget);
+
+            checkboxLayout->addWidget(checkbox1);
+            checkboxLayout->addWidget(checkbox2);
+            checkboxLayout->addWidget(checkbox3);
+            checkboxLayout->addWidget(checkbox4);
+            checkboxLayout->addWidget(checkbox5);
+            layout->addWidget(checkboxWidget);
+            break;
+        default:
+            break;
+        }
+        //复选框
+
+        // 创建水平布局用于包含按钮
+        QHBoxLayout *buttonLayout = new QHBoxLayout();
+        layout->addLayout(buttonLayout);
+
+        QPushButton *submitButton = new QPushButton("确认", addDialog);
+        buttonLayout->addWidget(submitButton);
+        connect(submitButton, &QPushButton::clicked, [=]() {
+            QString text1 = textField1->text();
+            QString text2 = textField2->text();
+            QString text4 = textField4->text();
+            bool gender = maleRadio->isChecked(); // true for male, false for female
+            switch (tabletype) {
+            case CustomerTable: {
+
+                break;
+            }
+            case ConsumeTable: {
+                bool option1 = checkbox1->isChecked();
+                bool option2 = checkbox2->isChecked();
+                bool option3 = checkbox3->isChecked();
+                bool option4 = checkbox4->isChecked();
+                bool option5 = checkbox5->isChecked();
+                if (!option1 && !option2 && !option3 && !option4 && !option5) {
+                    QMessageBox::warning(addDialog, "选择错误", "必须至少选择一个选项！");
+                    return;
+                }
+                qDebug() << "选项1:" << option1;
+                qDebug() << "选项2:" << option2;
+                qDebug() << "选项3:" << option3;
+                qDebug() << "选项4:" << option4;
+                qDebug() << "选项5:" << option5;
+                break;
+            }
+            case EmployeeTable: {
+                bool option1 = checkbox1->isChecked();
+                bool option2 = checkbox2->isChecked();
+                bool option3 = checkbox3->isChecked();
+                bool option4 = checkbox4->isChecked();
+                bool option5 = checkbox5->isChecked();
+                if (!option1 && !option2 && !option3 && !option4 && !option5) {
+                    QMessageBox::warning(addDialog, "选择错误", "必须至少选择一个选项！");
+                    return;
+                }
+                qDebug() << "选项1:" << option1;
+                qDebug() << "选项2:" << option2;
+                qDebug() << "选项3:" << option3;
+                qDebug() << "选项4:" << option4;
+                qDebug() << "选项5:" << option5;
+                break;
+            }
+            default:
+                break;
+            }
+
+
+            if (!maleRadio->isChecked() && !femaleRadio->isChecked()) {
+                QMessageBox::warning(addDialog, "输入错误", "必须选择性别");
+                return;
+            }
+
+            if (text1.isEmpty() || text2.isEmpty() || text4.isEmpty()) {
+                QMessageBox::warning(addDialog, "输入错误", "所有文本框必须填写！");
+                return;
+            }
+
+
+
+            // 输出调试信息
+            qDebug() << "文本框1内容:" << text1;
+            qDebug() << "文本框2内容:" << text2;
+            qDebug() << "文本框4内容:" << text4;
+            qDebug() << "性别:" << (gender ? "男" : "女");
+
+
+            switch (tabletype) {
+            case CustomerTable: {
+                Customer customer_temp(text1, text2, gender, text4);
+                QJsonObject custome_json = customer_temp.toJson();
+                AllTables->customer_info.append(custome_json);
+                QJsonDocument doc(AllTables->customer_info);
+                QString jsonString = doc.toJson(QJsonDocument::Compact);
+                QMessageBox::warning(this, "选择错误", QString("Customer Info: %1").arg(jsonString));
+                AllTables->saveJsonArrayToFile(AllTables->customer_info, "F:/QtProject/YSU_Hairdresser/Data/customer.json");
+                AllTables->customerShow(AllTables->customer_info);
+
+                break;
+            }
+            case ConsumeTable: {
+                QMap<QString, double> Consume_Proj;
+                if (checkbox1->isChecked()) {
+                    Consume_Proj.insert("洗剪吹", 50.0);
+                }
+                if (checkbox2->isChecked()) {
+                    Consume_Proj.insert("染发", 80.0);
+                }
+                if (checkbox3->isChecked()) {
+                    Consume_Proj.insert("剪发", 30.0);
+                }
+                if (checkbox4->isChecked()) {
+                    Consume_Proj.insert("烫发", 100.0);
+                }
+                if (checkbox5->isChecked()) {
+                    Consume_Proj.insert("护发", 60.0);
+                }
+                Consume consume_temp(text1, text2, gender, text4, Consume_Proj);
+                // 处理 ConsumeTable 情况
+                break;
+            }
+            case EmployeeTable: {
+                QMap<QString, double> Employee_Proj;
+                if (checkbox1->isChecked()) {
+                    Employee_Proj.insert("洗剪吹", 50.0);
+                }
+                if (checkbox2->isChecked()) {
+                    Employee_Proj.insert("染发", 80.0);
+                }
+                if (checkbox3->isChecked()) {
+                    Employee_Proj.insert("剪发", 30.0);
+                }
+                if (checkbox4->isChecked()) {
+                    Employee_Proj.insert("烫发", 100.0);
+                }
+                if (checkbox5->isChecked()) {
+                    Employee_Proj.insert("护发", 60.0);
+                }
+                Employee employee_temp(text1, text2, gender, text4, Employee_Proj);
+                // 处理 EmployeeTable 情况
+                break;
+            }
+            default:
+                break;
+            }
+
+            addDialog->deleteLater();
+        });
+
+
+        QPushButton *cancelButton = new QPushButton("取消", addDialog);
+        buttonLayout->addWidget(cancelButton);
+
+
+        addDialog->setWindowLayout(layout);
+        addDialog->show();
+        addDialog->showDialog();
+        connect(cancelButton, &QPushButton::clicked, [=]() {
+            qDebug() << "用户取消了输入";
+            addDialog->deleteLater();
+        });
     });
 
 
@@ -351,18 +615,18 @@ void Mainwindow::openDrawer_od()
         switch (tabletype) {
         case CustomerTable:
             // 处理顾客表
-            AllTables.customerShow(); // 先显示表格
-            AllTables.customerChange_open(); // 更改表格大小
+            AllTables->customerShow(AllTables->customer_info); // 先显示表格
+            AllTables->customerChange_open(); // 更改表格大小
             break;
         case ConsumeTable:
             // 处理消费表
-            AllTables.consumeShow(); // 先显示表格
-            AllTables.consumeChange_open(); // 更改表格大小
+            AllTables->consumeShow(); // 先显示表格
+            AllTables->consumeChange_open(); // 更改表格大小
             break;
         case EmployeeTable:
             // 处理雇员表
-            AllTables.employeeShow(); // 先显示表格
-            AllTables.employeeChange_open(); // 更改表格大小
+            AllTables->employeeShow(); // 先显示表格
+            AllTables->employeeChange_open(); // 更改表格大小
             break;
         }
     } else { // 如果 drawer 是打开的，则关闭它
@@ -382,18 +646,18 @@ void Mainwindow::openDrawer_od()
         switch (tabletype) {
         case CustomerTable:
             // 处理顾客表
-            AllTables.customerChange_close(); // 更改表格大小
-            AllTables.customerHide(); // 隐藏表格
+            AllTables->customerChange_close(); // 更改表格大小
+
             break;
         case ConsumeTable:
             // 处理消费表
-            AllTables.consumeChange_close(); // 更改表格大小
-            AllTables.consumeHide(); // 隐藏表格
+            AllTables->consumeChange_close(); // 更改表格大小
+
             break;
         case EmployeeTable:
             // 处理雇员表
-            AllTables.employeeChange_close(); // 更改表格大小
-            AllTables.employeeHide(); // 隐藏表格
+            AllTables->employeeChange_close(); // 更改表格大小
+
             break;
         }
         // 恢复表格的原始位置和大小
@@ -402,76 +666,6 @@ void Mainwindow::openDrawer_od()
     }
 }
 
-
-
-
-
-QJsonArray tran_doc_array(QJsonDocument doc){
-    return doc.array();
-}
-
-QJsonArray addinto_json(QJsonArray jsonarray, const Customer& customer) {
-    jsonarray.append(customer.toJson());
-    return jsonarray;
-}
-QJsonArray addinto_json(QJsonArray jsonarray,const Consume& consume){
-    jsonarray.append(consume.toJson());
-    return jsonarray;
-}
-QJsonArray addinto_json(QJsonArray jsonarray,const Employee& employee){
-    jsonarray.append(employee.toJson());
-    return jsonarray;
-}
-QJsonDocument readJsonFile(const QString& filePath) {
-    QFile file(filePath);
-    if(file.exists()) {
-        if (!file.open(QIODevice::ReadOnly)) {
-            // 文件打开失败，返回空的 QJsonDocument 对象
-            return QJsonDocument();
-        }
-
-        QJsonParseError parseError;
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll(), &parseError); // 解析 JSON 数据
-        if (parseError.error != QJsonParseError::NoError) {
-            // JSON 解析错误，返回空的 QJsonDocument 对象
-            return QJsonDocument();
-        }
-
-        // 成功读取并解析 JSON 文件，返回 QJsonDocument 对象
-        return jsonDoc;
-    }
-    else {
-        // 文件不存在，创建一个空的文件
-        if (!file.open(QIODevice::WriteOnly)) {
-            // 创建文件失败，返回空的 QJsonDocument 对象
-            return QJsonDocument();
-        }
-
-        // 写入空的 JSON 格式数据
-        file.write("{}");
-        file.close();
-
-        // 返回一个空的 QJsonDocument 对象
-        return QJsonDocument();
-    }
-}
-
-void saveJsonArrayToFile(const QJsonArray& jsonArray, const QString& filePath) {
-    // 创建一个 JSON 文档并将 JSON 数组添加到其中
-    QJsonDocument doc(jsonArray);
-
-    // 打开文件进行写入
-    QFile file(filePath);
-    if (!file.open(QIODevice::WriteOnly)) {
-        // 文件打开失败，处理错误情况
-        return;
-    }
-
-    // 将 JSON 文档转换为二进制数据并写入文件
-    file.write(doc.toJson());
-    // 关闭文件
-    file.close();
-}
 
 
 Mainwindow::~Mainwindow()

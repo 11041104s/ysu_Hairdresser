@@ -8,7 +8,7 @@ class Employee
 {
 public:
     Employee();
-    Employee(const QString& id, const QString& name, bool gender, const QString& phoneNumber);
+    Employee(const QString& id, const QString& name, bool gender, const QString& phoneNumber,QMap<QString, double>& proj);
     QJsonObject toJson() const ;
 private:
     QString employeeId;

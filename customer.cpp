@@ -1,9 +1,7 @@
 #include "customer.h"
 
-// Customer::Customer()
-// {
-
-// }
+Customer::~Customer() {
+}
 QJsonObject Customer::toJson() const {
     QJsonObject obj;
     obj["cardNum"] = card_num;

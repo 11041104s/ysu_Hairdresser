@@ -22,9 +22,7 @@ public:
     Mainwindow(QWidget *parent = nullptr);
     ~Mainwindow();
     //void load_customer_info(QTableWidget *tablewidget,QJsonDocument root_doc);
-    QJsonDocument load_json(QString JsonPathFn);
-    void saveDataToJsonFile(const QJsonArray& jsonArray, const QString& filePath);
-    QJsonArray tran_doc_array(QJsonDocument doc);
+
 
 public slots:
     void openDrawer_od();
@@ -36,7 +34,7 @@ private:
         EmployeeTable
     };
     TableType tabletype;
-    tableList AllTables;
+    tableList *AllTables;
     QtMaterialDrawer *drawer;
     QtMaterialAppBar *bar;
     QtMaterialFlatButton *bar_btn;
@@ -46,6 +44,7 @@ private:
     QtMaterialFlatButton *employeeInfobtn;
     QtMaterialFlatButton *historyInfobtn;
     QtMaterialFlatButton *globalInfobtn;
+
     QtMaterialFlatButton *addBtn;
     QtMaterialFlatButton *deleteBtn;
     QtMaterialFlatButton *editBtn;
