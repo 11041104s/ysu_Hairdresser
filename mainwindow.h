@@ -22,12 +22,6 @@ public:
     Mainwindow(QWidget *parent = nullptr);
     ~Mainwindow();
     //void load_customer_info(QTableWidget *tablewidget,QJsonDocument root_doc);
-
-
-public slots:
-    void openDrawer_od();
-
-private:
     enum TableType {
         CustomerTable,
         ConsumeTable,
@@ -35,6 +29,11 @@ private:
     };
     TableType tabletype;
     tableList *AllTables;
+
+public slots:
+    void openDrawer_od();
+
+private:
     QtMaterialDrawer *drawer;
     QtMaterialAppBar *bar;
     QtMaterialFlatButton *bar_btn;

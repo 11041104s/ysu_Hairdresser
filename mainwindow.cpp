@@ -4,6 +4,7 @@
 #include "consume.h"
 #include "employee.h"
 #include "hairdressing.h"
+#include "editdialog.h"
 #include <qtmaterialtoggle.h>
 #include <qtmaterialflatbutton.h>
 #include <qtmaterialflatbutton_internal.h>
@@ -70,7 +71,7 @@ Mainwindow::Mainwindow(QWidget *parent)
     QColor black_def(0,0,0);
 
     QFont btn_font;
-    btn_font.setFamily("微软雅黑");
+    btn_font.setFamily("汉仪文黑-85W");
     btn_font.setPixelSize(20);
 
     // table->setGeometry(20, 55, 984, 565);
@@ -189,6 +190,8 @@ Mainwindow::Mainwindow(QWidget *parent)
         // 其他逻辑
         AllTables->customerShow(AllTables->customer_info);
         tabletype = CustomerTable;
+        AllTables->employeeHide();
+        AllTables->consumeHide();
 
     });
     connect(employeeInfobtn, &QtMaterialFlatButton::clicked, [=]() {
@@ -217,6 +220,9 @@ Mainwindow::Mainwindow(QWidget *parent)
         exitBtn->setCheckable(1);
         exitBtn->setForegroundColor(black_def);
         tabletype = EmployeeTable;
+
+        AllTables->customerHide();
+        AllTables->consumeHide();
         // 在这里执行其他逻辑
     });
     connect(historyInfobtn, &QtMaterialFlatButton::clicked, [=]() {
@@ -245,6 +251,9 @@ Mainwindow::Mainwindow(QWidget *parent)
         exitBtn->setCheckable(1);
         exitBtn->setForegroundColor(black_def);
         tabletype = ConsumeTable;
+        AllTables->customerHide();
+        AllTables->consumeHide();
+        AllTables->employeeHide();
         // 在这里执行其他逻辑
     });
     connect(globalInfobtn, &QtMaterialFlatButton::clicked, [=]() {
@@ -280,6 +289,26 @@ Mainwindow::Mainwindow(QWidget *parent)
         deleteBtn->setChecked(false);
         addBtn->setChecked(false);
         exitBtn->setChecked(false);
+
+        EditDialog *customer_edit = nullptr;
+        int selected = -1;
+        switch (tabletype) {
+        case CustomerTable:
+            selected = AllTables->getSelected_customer();
+            if (selected != -1) {  // Assuming getSelected_customer returns -1 when no selection
+                customer_edit = new EditDialog(this); // Assuming `this` is the parent widget
+                customer_edit->show();
+            }
+            break;
+        case ConsumeTable:
+
+            break;
+        case EmployeeTable:
+
+            break;
+        default:
+            break;
+        }
     });
 
     connect(deleteBtn, &QtMaterialFlatButton::clicked, [=]() {
@@ -287,6 +316,13 @@ Mainwindow::Mainwindow(QWidget *parent)
         editBtn->setChecked(false);
         addBtn->setChecked(false);
         exitBtn->setChecked(false);
+    });
+    connect(exitBtn, &QtMaterialFlatButton::clicked, [=]() {
+        // 取消其他按钮的选中状态
+        editBtn->setChecked(false);
+        addBtn->setChecked(false);
+        deleteBtn->setChecked(false);
+        this->close();
     });
 
     connect(addBtn, &QtMaterialFlatButton::clicked, [=]() {

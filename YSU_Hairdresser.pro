@@ -9,6 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 QT += statemachine
 FORMS += \
+    editdialog.ui \
     mainwindow.ui
     //导入组件库的源文件
     SOURCES += \
@@ -52,6 +53,7 @@ FORMS += \
         SDK/MaterialSDK/components/qtmaterialtoggle_internal.cpp \
     consume.cpp \
     customer.cpp \
+    editdialog.cpp \
     employee.cpp \
     hairdressing.cpp \
         main.cpp \
@@ -125,6 +127,7 @@ FORMS += \
         SDK/MaterialSDK/components/qtmaterialtoggle_p.h \
     consume.h \
     customer.h \
+    editdialog.h \
     employee.h \
     hairdressing.h \
     mainwindow.h \

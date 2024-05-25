@@ -6,7 +6,8 @@
 #include <QHeaderView>
 
 tableList::tableList(QWidget *parent,bool drawerOpen) : QWidget(parent), isDrawerOpen(drawerOpen){
-    QFont font("song", 12, QFont::Bold);
+    QFont font("汉仪文黑-85W", 12, QFont::Bold);
+    QFont font_info("汉仪文黑-85W",11);
 
     customerTable.setParent(parent);
     customerTable.setGeometry(20, 55, 984, 565);
@@ -14,7 +15,9 @@ tableList::tableList(QWidget *parent,bool drawerOpen) : QWidget(parent), isDrawe
     customerTable.setEditTriggers(QAbstractItemView::NoEditTriggers);
     customerTable.setSelectionBehavior(QAbstractItemView::SelectRows);
     customerTable.horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    customerTable.setSelectionMode( QAbstractItemView::SingleSelection);
     customerTable.horizontalHeader()->setFont(font);
+    customerTable.setFont(font_info);
     customerTable.hide();
 
 
@@ -24,6 +27,7 @@ tableList::tableList(QWidget *parent,bool drawerOpen) : QWidget(parent), isDrawe
     consumeTable.setEditTriggers(QAbstractItemView::NoEditTriggers);
     consumeTable.setSelectionBehavior(QAbstractItemView::SelectRows);
     consumeTable.horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    consumeTable.setSelectionMode( QAbstractItemView::SingleSelection);
     consumeTable.horizontalHeader()->setFont(font);
     consumeTable.hide();
 
@@ -33,6 +37,7 @@ tableList::tableList(QWidget *parent,bool drawerOpen) : QWidget(parent), isDrawe
     employeeTable.setEditTriggers(QAbstractItemView::NoEditTriggers);
     employeeTable.setSelectionBehavior(QAbstractItemView::SelectRows);
     employeeTable.horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    employeeTable.setSelectionMode( QAbstractItemView::SingleSelection);
     employeeTable.horizontalHeader()->setFont(font);
     employeeTable.hide();
 
@@ -191,4 +196,32 @@ void tableList::consumeHide(){
 }
 void tableList::employeeHide(){
     employeeTable.hide();
+}
+
+int tableList::getSelected_customer(){
+    QList<QTableWidgetSelectionRange> selected_list = customerTable.selectedRanges();
+    if (!selected_list.isEmpty()) {
+        int selectedRow = selected_list.first().topRow();
+        return selectedRow;
+    } else {
+        return -1;
+    }
+}
+int tableList::getSelected_consume(){
+    QList<QTableWidgetSelectionRange> selected_list = consumeTable.selectedRanges();
+    if (!selected_list.isEmpty()) {
+        int selectedRow = selected_list.first().topRow();
+        return selectedRow;
+    } else {
+        return -1;
+    }
+}
+int tableList::getSelected_employee(){
+    QList<QTableWidgetSelectionRange> selected_list = employeeTable.selectedRanges();
+    if (!selected_list.isEmpty()) {
+        int selectedRow = selected_list.first().topRow();
+        return selectedRow;
+    } else {
+        return -1;
+    }
 }

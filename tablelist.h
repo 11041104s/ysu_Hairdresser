@@ -9,7 +9,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QFile>
-
+#include <QMessageBox>
 
 class tableList : public QWidget
 {
@@ -32,9 +32,14 @@ public:
     void employeeShow();
     void employeeChange_open();
     void employeeChange_close();
+
     void customerHide();
     void consumeHide();
     void employeeHide();
+
+    int getSelected_customer();
+    int getSelected_consume();
+    int getSelected_employee();
 
 
 private:
