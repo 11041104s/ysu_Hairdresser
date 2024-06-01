@@ -5,6 +5,8 @@
 #include "employee.h"
 #include "hairdressing.h"
 #include "editdialog.h"
+#include "editdialog_consume.h"
+#include "editdialog_employee.h"
 #include <qtmaterialtoggle.h>
 #include <qtmaterialflatbutton.h>
 #include <qtmaterialflatbutton_internal.h>
@@ -48,14 +50,17 @@ Mainwindow::Mainwindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setStyleSheet("background-color:#D2D2D2;");
+    QString customer_path = "F:/QtProject/YSU_Hairdresser/Data/customer.json";
+    QString consume_path = "F:/QtProject/YSU_Hairdresser/Data/consume.json";
+    QString employee_path = "F:/QtProject/YSU_Hairdresser/Data/employee.json";
 
-    AllTables->customer_info = (AllTables->tran_doc_array(AllTables->readJsonFile("F:/QtProject/YSU_Hairdresser/Data/customer.json")));
+    AllTables->customer_info = (AllTables->tran_doc_array(AllTables->readJsonFile(customer_path)));
     QJsonDocument doc(AllTables->customer_info);
     QString jsonString = doc.toJson(QJsonDocument::Compact);
     QMessageBox::warning(this, "选择错误", QString("Customer Info: %1").arg(jsonString));
 
-    AllTables->consume_info = (AllTables->tran_doc_array(AllTables->readJsonFile("F:/QtProject/YSU_Hairdresser/Data/consume.json")));
-    AllTables->employee_info = (AllTables->tran_doc_array(AllTables->readJsonFile("F:/QtProject/YSU_Hairdresser/Data/employee.json")));
+    AllTables->consume_info = (AllTables->tran_doc_array(AllTables->readJsonFile(consume_path)));
+    AllTables->employee_info = (AllTables->tran_doc_array(AllTables->readJsonFile(employee_path)));
     QIcon listIcon;
     listIcon.addFile(tr(":/image/list.png"));
     QIcon chartIcon(":/image/chart.png");
@@ -221,6 +226,7 @@ Mainwindow::Mainwindow(QWidget *parent)
         exitBtn->setForegroundColor(black_def);
         tabletype = EmployeeTable;
 
+        AllTables->employeeShow(AllTables->employee_info);
         AllTables->customerHide();
         AllTables->consumeHide();
         // 在这里执行其他逻辑
@@ -250,10 +256,11 @@ Mainwindow::Mainwindow(QWidget *parent)
         addBtn->setForegroundColor(black_def);
         exitBtn->setCheckable(1);
         exitBtn->setForegroundColor(black_def);
+
+        AllTables->consumeShow(AllTables->consume_info);
         tabletype = ConsumeTable;
-        AllTables->customerHide();
-        AllTables->consumeHide();
         AllTables->employeeHide();
+        AllTables->customerHide();
         // 在这里执行其他逻辑
     });
     connect(globalInfobtn, &QtMaterialFlatButton::clicked, [=]() {
@@ -291,20 +298,30 @@ Mainwindow::Mainwindow(QWidget *parent)
         exitBtn->setChecked(false);
 
         EditDialog *customer_edit = nullptr;
+        editdialog_consume *consume_edit = nullptr;
+        editdialog_employee *employee_edit = nullptr;
         int selected = -1;
         switch (tabletype) {
         case CustomerTable:
             selected = AllTables->getSelected_customer();
-            if (selected != -1) {  // Assuming getSelected_customer returns -1 when no selection
-                customer_edit = new EditDialog(this); // Assuming `this` is the parent widget
+            if (selected != -1) {
+                customer_edit = new EditDialog(this);
                 customer_edit->show();
             }
             break;
         case ConsumeTable:
-
+            selected = AllTables->getSelected_consume();
+            if (selected != -1) {
+                consume_edit = new editdialog_consume(this);
+                consume_edit->show();
+            }
             break;
         case EmployeeTable:
-
+            selected = AllTables->getSelected_employee();
+            if (selected != -1) {
+                employee_edit = new editdialog_employee(this);
+                employee_edit->show();
+            }
             break;
         default:
             break;
@@ -316,6 +333,49 @@ Mainwindow::Mainwindow(QWidget *parent)
         editBtn->setChecked(false);
         addBtn->setChecked(false);
         exitBtn->setChecked(false);
+
+        int selected_index = -1;
+        switch (tabletype) {
+        case CustomerTable:
+            selected_index = AllTables->getSelected_customer();
+
+            if (selected_index != -1) {
+                AllTables->customer_info.removeAt(selected_index);
+                AllTables->saveJsonArrayToFile(AllTables->customer_info, customer_path);
+                AllTables->customerShow(AllTables->customer_info);
+
+
+            } else {
+                QMessageBox::warning(this, "错误", "未选中客户！");
+            }
+            break;
+        case ConsumeTable:
+            selected_index = AllTables->getSelected_consume();
+
+            if (selected_index != -1) {
+                AllTables->consume_info.removeAt(selected_index);
+                AllTables->saveJsonArrayToFile(AllTables->consume_info, consume_path);
+                AllTables->consumeShow(AllTables->consume_info);
+            } else {
+                QMessageBox::warning(this, "错误", "未选中客户！");
+            }
+            break;
+        case EmployeeTable:
+            selected_index = AllTables->getSelected_employee();
+
+            if (selected_index != -1) {
+                AllTables->employee_info.removeAt(selected_index);
+                AllTables->saveJsonArrayToFile(AllTables->employee_info, employee_path);
+                AllTables->employeeShow(AllTables->employee_info);
+            } else {
+                QMessageBox::warning(this, "错误", "未选中客户！");
+
+            }
+            break;
+        default:
+            break;
+        }
+
     });
     connect(exitBtn, &QtMaterialFlatButton::clicked, [=]() {
         // 取消其他按钮的选中状态
@@ -330,6 +390,10 @@ Mainwindow::Mainwindow(QWidget *parent)
         editBtn->setChecked(false);
         deleteBtn->setChecked(false);
         exitBtn->setChecked(false);
+
+        if(tabletype==CustomerTable){
+
+        }
         QtMaterialDialog *addDialog = new QtMaterialDialog(this); // 将主窗口设置为对话框的父窗口
         addDialog->resize(QSize(1024,640));
 
@@ -388,51 +452,7 @@ Mainwindow::Mainwindow(QWidget *parent)
         QHBoxLayout *checkboxLayout = nullptr;
         QCheckBox *checkbox1 = nullptr, *checkbox2 = nullptr, *checkbox3 = nullptr, *checkbox4 = nullptr, *checkbox5 = nullptr;
 
-        switch (tabletype) {
-        case CustomerTable:
 
-            break;
-        case ConsumeTable:
-            // 处理 ConsumeTable 情况
-            checkboxWidget = new QWidget(addDialog);
-            checkboxLayout = new QHBoxLayout(checkboxWidget);
-            checkboxLayout->setAlignment(Qt::AlignCenter);
-
-            checkbox1 = new QCheckBox("洗剪吹", checkboxWidget);
-            checkbox2 = new QCheckBox("染发", checkboxWidget);
-            checkbox3 = new QCheckBox("剪发", checkboxWidget);
-            checkbox4 = new QCheckBox("烫发", checkboxWidget);
-            checkbox5 = new QCheckBox("护发", checkboxWidget);
-
-            checkboxLayout->addWidget(checkbox1);
-            checkboxLayout->addWidget(checkbox2);
-            checkboxLayout->addWidget(checkbox3);
-            checkboxLayout->addWidget(checkbox4);
-            checkboxLayout->addWidget(checkbox5);
-            layout->addWidget(checkboxWidget);
-            break;
-        case EmployeeTable:
-            // 处理 EmployeeTable 情况
-            checkboxWidget = new QWidget(addDialog);
-            checkboxLayout = new QHBoxLayout(checkboxWidget);
-            checkboxLayout->setAlignment(Qt::AlignCenter);
-
-            checkbox1 = new QCheckBox("洗剪吹", checkboxWidget);
-            checkbox2 = new QCheckBox("染发", checkboxWidget);
-            checkbox3 = new QCheckBox("剪发", checkboxWidget);
-            checkbox4 = new QCheckBox("烫发", checkboxWidget);
-            checkbox5 = new QCheckBox("护发", checkboxWidget);
-
-            checkboxLayout->addWidget(checkbox1);
-            checkboxLayout->addWidget(checkbox2);
-            checkboxLayout->addWidget(checkbox3);
-            checkboxLayout->addWidget(checkbox4);
-            checkboxLayout->addWidget(checkbox5);
-            layout->addWidget(checkboxWidget);
-            break;
-        default:
-            break;
-        }
         //复选框
 
         // 创建水平布局用于包含按钮
@@ -517,7 +537,7 @@ Mainwindow::Mainwindow(QWidget *parent)
                 QJsonDocument doc(AllTables->customer_info);
                 QString jsonString = doc.toJson(QJsonDocument::Compact);
                 QMessageBox::warning(this, "选择错误", QString("Customer Info: %1").arg(jsonString));
-                AllTables->saveJsonArrayToFile(AllTables->customer_info, "F:/QtProject/YSU_Hairdresser/Data/customer.json");
+                AllTables->saveJsonArrayToFile(AllTables->customer_info, customer_path);
                 AllTables->customerShow(AllTables->customer_info);
 
                 break;
@@ -540,6 +560,13 @@ Mainwindow::Mainwindow(QWidget *parent)
                     Consume_Proj.insert("护发", 60.0);
                 }
                 Consume consume_temp(text1, text2, gender, text4, Consume_Proj);
+                QJsonObject  consume_json =consume_temp.toJson();
+                AllTables->consume_info.append(consume_json);
+                QJsonDocument doc(AllTables->consume_info);
+                QString jsonString = doc.toJson(QJsonDocument::Compact);
+                QMessageBox::warning(this, "选择错误", QString("Consume Info: %1").arg(jsonString));
+                AllTables->saveJsonArrayToFile(AllTables->consume_info, consume_path);
+                AllTables->consumeShow(AllTables->consume_info);
                 // 处理 ConsumeTable 情况
                 break;
             }
@@ -561,6 +588,13 @@ Mainwindow::Mainwindow(QWidget *parent)
                     Employee_Proj.insert("护发", 60.0);
                 }
                 Employee employee_temp(text1, text2, gender, text4, Employee_Proj);
+                QJsonObject  employee_json =employee_temp.toJson();
+                AllTables->employee_info.append(employee_json);
+                QJsonDocument doc(AllTables->employee_info);
+                QString jsonString = doc.toJson(QJsonDocument::Compact);
+                QMessageBox::warning(this, "选择错误", QString("employee Info: %1").arg(jsonString));
+                AllTables->saveJsonArrayToFile(AllTables->employee_info, employee_path);
+                AllTables->employeeShow(AllTables->employee_info);
                 // 处理 EmployeeTable 情况
                 break;
             }
@@ -656,12 +690,12 @@ void Mainwindow::openDrawer_od()
             break;
         case ConsumeTable:
             // 处理消费表
-            AllTables->consumeShow(); // 先显示表格
+            AllTables->consumeShow(AllTables->consume_info); // 先显示表格
             AllTables->consumeChange_open(); // 更改表格大小
             break;
         case EmployeeTable:
             // 处理雇员表
-            AllTables->employeeShow(); // 先显示表格
+            AllTables->employeeShow(AllTables->employee_info); // 先显示表格
             AllTables->employeeChange_open(); // 更改表格大小
             break;
         }

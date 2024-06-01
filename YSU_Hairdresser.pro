@@ -10,6 +10,8 @@ CONFIG += c++17
 QT += statemachine
 FORMS += \
     editdialog.ui \
+    editdialog_consume.ui \
+    editdialog_employee.ui \
     mainwindow.ui
     //导入组件库的源文件
     SOURCES += \
@@ -54,6 +56,8 @@ FORMS += \
     consume.cpp \
     customer.cpp \
     editdialog.cpp \
+    editdialog_consume.cpp \
+    editdialog_employee.cpp \
     employee.cpp \
     hairdressing.cpp \
         main.cpp \
@@ -128,6 +132,8 @@ FORMS += \
     consume.h \
     customer.h \
     editdialog.h \
+    editdialog_consume.h \
+    editdialog_employee.h \
     employee.h \
     hairdressing.h \
     mainwindow.h \

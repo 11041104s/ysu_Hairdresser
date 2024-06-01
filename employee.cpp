@@ -14,7 +14,6 @@ Employee::Employee()
 {
     // 在这里执行其他的初始化操作
 }
-
 QJsonObject Employee::toJson() const {
     QJsonObject json;
     json["employeeId"] = employeeId;
@@ -22,12 +21,12 @@ QJsonObject Employee::toJson() const {
     json["employeeGender"] = employeeGender ? "Male" : "Female";
     json["employeePhoneNumber"] = employeePhoneNumber;
 
-    // 创建美发项目的 JSON 对象
-    QJsonObject hairdressingJson;
-    for (auto it = hairdressingProjects.constBegin(); it != hairdressingProjects.constEnd(); ++it) {
-        hairdressingJson[it.key()] = it.value();
+    // 创建项目的 JSON 对象
+    QJsonObject projectJson;
+    for (auto it = hairdressingProjects.begin(); it != hairdressingProjects.end(); ++it) {
+        projectJson[it.key()] = it.value();
     }
-    json["hairdressingProjects"] = hairdressingJson;
+    json["project"] = projectJson;
 
     return json;
 }

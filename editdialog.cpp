@@ -65,3 +65,5 @@ void EditDialog::on_pushButton_2_clicked()
     this->close();
 }
 
+
+

@@ -29,6 +29,7 @@ tableList::tableList(QWidget *parent,bool drawerOpen) : QWidget(parent), isDrawe
     consumeTable.horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     consumeTable.setSelectionMode( QAbstractItemView::SingleSelection);
     consumeTable.horizontalHeader()->setFont(font);
+    consumeTable.setFont(font_info);
     consumeTable.hide();
 
     employeeTable.setParent(parent);
@@ -39,6 +40,7 @@ tableList::tableList(QWidget *parent,bool drawerOpen) : QWidget(parent), isDrawe
     employeeTable.horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     employeeTable.setSelectionMode( QAbstractItemView::SingleSelection);
     employeeTable.horizontalHeader()->setFont(font);
+    employeeTable.setFont(font_info);
     employeeTable.hide();
 
     if (isDrawerOpen){
@@ -177,16 +179,118 @@ void tableList::customerShow(QJsonArray jsonarray){
         customerTable.setItem(row, 3, new QTableWidgetItem(property4));
     }
 }
-void tableList::consumeShow(){
+void tableList::consumeShow(QJsonArray jsonarray) {
     customerTable.hide();
     consumeTable.show();
     employeeTable.hide();
+
+    consumeTable.clearContents();
+    consumeTable.setRowCount(0);
+
+    // 表头
+    QStringList headerLabels;
+    headerLabels << "会员卡号" << "姓名" << "性别" << "手机号" << "美发项目" << "总花费";
+    consumeTable.setColumnCount(headerLabels.size());
+    consumeTable.setHorizontalHeaderLabels(headerLabels);
+
+    // 遍历
+    for (int i = 0; i < jsonarray.size(); ++i) {
+        QJsonObject jsonObject = jsonarray.at(i).toObject();
+
+        // 获取每个属性
+        QString cardNum = jsonObject.value("cardNum").toString();
+        QString fullName = jsonObject.value("fullName").toString();
+        QString gender = jsonObject.value("gender").toString();
+        QString phoneNumber = jsonObject.value("phoneNumber").toString();
+
+        // 获取项目和总花费
+        QJsonObject projectObj = jsonObject.value("project").toObject();
+        QStringList projectList;
+        double totalCost = 0.0;
+
+        for (auto it = projectObj.begin(); it != projectObj.end(); ++it) {
+            QString projectName = it.key();
+            double projectCost = it.value().toDouble();
+            projectList << QString("%1").arg(projectName);
+            totalCost += projectCost;
+        }
+
+        QString projectString = projectList.join(", ");
+        QString projectTooltip = projectList.join("\n");
+
+        // 插入新行
+        int row = consumeTable.rowCount();
+        consumeTable.insertRow(row);
+
+        // 添加到表格
+        consumeTable.setItem(row, 0, new QTableWidgetItem(cardNum));
+        consumeTable.setItem(row, 1, new QTableWidgetItem(fullName));
+        consumeTable.setItem(row, 2, new QTableWidgetItem(gender));
+        consumeTable.setItem(row, 3, new QTableWidgetItem(phoneNumber));
+
+        QTableWidgetItem *projectItem = new QTableWidgetItem(projectString);
+        projectItem->setToolTip(projectTooltip);
+        consumeTable.setItem(row, 4, projectItem);
+
+        consumeTable.setItem(row, 5, new QTableWidgetItem(QString::number(totalCost)));
+    }
 }
-void tableList::employeeShow(){
+
+void tableList::employeeShow(QJsonArray jsonarray) {
     customerTable.hide();
     consumeTable.hide();
     employeeTable.show();
+
+    employeeTable.clearContents();
+    employeeTable.setRowCount(0);
+
+    // 表头
+    QStringList headerLabels;
+    headerLabels << "员工ID" << "姓名" << "性别" << "手机号" << "美发项目";
+    employeeTable.setColumnCount(headerLabels.size());
+    employeeTable.setHorizontalHeaderLabels(headerLabels);
+
+    // 遍历
+    for (int i = 0; i < jsonarray.size(); ++i) {
+        QJsonObject jsonObject = jsonarray.at(i).toObject();
+
+        // 获取每个属性
+        QString employeeId = jsonObject.value("employeeId").toString();
+        QString employeeName = jsonObject.value("employeeName").toString();
+        QString gender = jsonObject.value("employeeGender").toString();
+        QString phoneNumber = jsonObject.value("employeePhoneNumber").toString();
+
+        // 获取项目和总花费
+        QJsonObject projectObj = jsonObject.value("project").toObject();
+        QStringList projectList;
+        double totalCost = 0.0;
+
+        for (auto it = projectObj.begin(); it != projectObj.end(); ++it) {
+            QString projectName = it.key();
+            projectList << QString("%1").arg(projectName);
+        }
+
+        QString projectString = projectList.join(", ");
+        QString projectTooltip = projectList.join("\n");
+
+        // 插入新行
+        int row = employeeTable.rowCount();
+        employeeTable.insertRow(row);
+
+        // 添加到表格
+        employeeTable.setItem(row, 0, new QTableWidgetItem(employeeId));
+        employeeTable.setItem(row, 1, new QTableWidgetItem(employeeName));
+        employeeTable.setItem(row, 2, new QTableWidgetItem(gender));
+        employeeTable.setItem(row, 3, new QTableWidgetItem(phoneNumber));
+
+        QTableWidgetItem *projectItem = new QTableWidgetItem(projectString);
+        projectItem->setToolTip(projectTooltip);
+        employeeTable.setItem(row, 4, projectItem);
+
+        employeeTable.setItem(row, 5, new QTableWidgetItem(QString::number(totalCost)));
+    }
 }
+
 
 void tableList::customerHide(){
     customerTable.hide();

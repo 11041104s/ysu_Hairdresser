@@ -16,8 +16,10 @@ QJsonObject Consume::toJson() const {
     obj["fullName"] = name;
     obj["gender"] = sex ? "Male" : "Female";
     obj["phoneNumber"] = phone_num;
+    QJsonObject all_projects;
     for (auto it = project.begin(); it != project.end(); ++it) {
-        obj[it.key()] = it.value();
+        all_projects[it.key()] = it.value();
     }
+    obj["project"] = all_projects;
     return obj;
 }

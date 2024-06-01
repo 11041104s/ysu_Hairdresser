@@ -26,10 +26,10 @@ public:
     void customerShow(QJsonArray jsonarray);
     void customerChange_open();
     void customerChange_close();
-    void consumeShow();
+    void consumeShow(QJsonArray jsonarray);
     void consumeChange_open();
     void consumeChange_close();
-    void employeeShow();
+    void employeeShow(QJsonArray jsonarray);
     void employeeChange_open();
     void employeeChange_close();
 
